@@ -563,9 +563,12 @@ export default function Dashboard() {
                       </>
                     )}
                   </div>
-                  <button className="px-4 py-2 border border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400 rounded-full hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors text-sm">
+                    <button 
+                    onClick={() => router.push('/projects/details/p1')} 
+                    className="px-4 py-2 border border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400 rounded-full hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors text-sm"
+                    >
                     View Project
-                  </button>
+                    </button>
                 </div>
               </div>
 
