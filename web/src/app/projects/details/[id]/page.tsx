@@ -25,6 +25,10 @@ interface Milestone {
   submissionUrl?: string;
   submissionNote?: string;
   clientFeedback?: string;
+  hasDispute?: boolean;
+  disputeReason?: string;
+  disputeDate?: string;
+  disputeInitiator?: "freelancer" | "client";
 }
 
 interface ProjectDetails {
@@ -51,6 +55,11 @@ export default function ProjectDetailsPage() {
   const [feedbackNote, setFeedbackNote] = useState("");
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [showDisputeModal, setShowDisputeModal] = useState(false);
+  const [disputeReason, setDisputeReason] = useState("");
+  const [disputeMilestoneId, setDisputeMilestoneId] = useState<number | null>(
+    null
+  );
 
   // Toggle user type for demo purposes
   const toggleUserType = () => {
@@ -216,6 +225,41 @@ export default function ProjectDetailsPage() {
 
     setProject({ ...project, milestones: updatedMilestones });
     setShowFeedbackModal(false);
+  };
+
+  // Add this function with your other handler functions
+  const initiateDispute = (milestoneId: number) => {
+    setDisputeMilestoneId(milestoneId);
+    setDisputeReason("");
+    setShowDisputeModal(true);
+  };
+
+  // And add this function to submit the dispute
+  const submitDispute = () => {
+    if (!project) return;
+
+    // Update the milestone status to indicate there's a dispute
+    const updatedMilestones = project.milestones.map((milestone) =>
+      milestone.id === disputeMilestoneId
+        ? {
+            ...milestone,
+            hasDispute: true,
+            disputeReason,
+            disputeDate: new Date().toISOString(),
+            disputeInitiator: userType,
+          }
+        : milestone
+    );
+
+    setProject({ ...project, milestones: updatedMilestones });
+    setShowDisputeModal(false);
+
+    // In a real app, you would send this data to your API
+    console.log("Dispute filed:", {
+      milestoneId: disputeMilestoneId,
+      reason: disputeReason,
+      by: userType,
+    });
   };
 
   // Get status badge
@@ -544,14 +588,30 @@ export default function ProjectDetailsPage() {
                       )}
 
                       {milestone.status === "approved" && (
-                        <span className="text-sm text-green-600 dark:text-green-400">
-                          Work approved, awaiting payment
-                        </span>
+                        <>
+                          <span className="text-sm text-green-600 dark:text-green-400 mr-2">
+                            Work approved, awaiting payment
+                          </span>
+                          {!milestone.hasDispute && (
+                            <button
+                              onClick={() => initiateDispute(milestone.id)}
+                              className="px-4 py-2 bg-red-600 text-white rounded-full hover:bg-red-700 transition-colors text-sm"
+                            >
+                              Payment Overdue
+                            </button>
+                          )}
+                        </>
                       )}
 
                       {milestone.status === "paid" && (
                         <span className="text-sm text-purple-600 dark:text-purple-400">
                           Milestone completed and paid
+                        </span>
+                      )}
+
+                      {milestone.hasDispute && (
+                        <span className="text-sm bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-300 px-3 py-1 rounded-full">
+                          Dispute Filed
                         </span>
                       )}
                     </div>
@@ -581,6 +641,14 @@ export default function ProjectDetailsPage() {
                           >
                             Request Revision
                           </button>
+                          {!milestone.hasDispute && (
+                            <button
+                              onClick={() => initiateDispute(milestone.id)}
+                              className="px-4 py-2 bg-red-600 text-white rounded-full hover:bg-red-700 transition-colors text-sm"
+                            >
+                              Quality Issue
+                            </button>
+                          )}
                         </>
                       )}
 
@@ -614,6 +682,12 @@ export default function ProjectDetailsPage() {
                       {milestone.status === "revision_requested" && (
                         <span className="text-sm text-orange-600 dark:text-orange-400">
                           Waiting for revised submission
+                        </span>
+                      )}
+
+                      {milestone.hasDispute && (
+                        <span className="text-sm bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-300 px-3 py-1 rounded-full">
+                          Dispute Filed
                         </span>
                       )}
                     </div>
@@ -835,6 +909,82 @@ export default function ProjectDetailsPage() {
                 disabled={!feedbackNote.trim()}
               >
                 Request Revision
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Dispute Modal */}
+      {showDisputeModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg max-w-md w-full p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-bold dark:text-white">
+                {userType === "freelancer"
+                  ? "Report Payment Issue"
+                  : "Report Quality Issue"}
+              </h3>
+              <button
+                onClick={() => setShowDisputeModal(false)}
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              >
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            <div>
+              <label
+                htmlFor="disputeReason"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >
+                {userType === "freelancer"
+                  ? "Explain why the payment is overdue and provide relevant details"
+                  : "Describe the quality issues with the delivered work"}
+              </label>
+              <textarea
+                id="disputeReason"
+                value={disputeReason}
+                onChange={(e) => setDisputeReason(e.target.value)}
+                rows={5}
+                placeholder={
+                  userType === "freelancer"
+                    ? "e.g., Payment was due 7 days ago as per our agreement..."
+                    : "e.g., The delivered work doesn't meet the requirements because..."
+                }
+                className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+              />
+              <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                Disputes are reviewed by our support team. Please provide clear
+                details to help resolve this issue faster.
+              </p>
+            </div>
+
+            <div className="mt-6 flex justify-end space-x-3">
+              <button
+                onClick={() => setShowDisputeModal(false)}
+                className="px-4 py-2 border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={submitDispute}
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+                disabled={!disputeReason.trim()}
+              >
+                Submit Dispute
               </button>
             </div>
           </div>
