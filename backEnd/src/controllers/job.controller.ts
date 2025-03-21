@@ -1,24 +1,12 @@
 import { ApiResponse } from "../utils/ApiResponse";
 import { asyncHandler } from "../utils/asyncHandler";
 import { Response, Request } from "express";
+
 import jwt, {JwtPayload} from 'jsonwebtoken'
 import { prisma } from "..";
 
 
 const initJob = asyncHandler(async (req: Request, res: Response) => {
-    // model Job {
-    //     id           String      @id @default(uuid())
-    //     title        String
-    //     description  String
-    //     clientId     String
-    //     freelancerId String?
-    //     createdAt    DateTime    @default(now())
-    //     updatedAt    DateTime    @updatedAt
-    //     milestones   Milestone[]
-    //     client       Client      @relation("ClientJobs", fields: [clientId], references: [id])
-    //     freelancer   Freelancer? @relation("FreelancerJobs", fields: [freelancerId], references: [id])
-    //     Dispute      Dispute[]
-    //   }
 
     const { title, description, freelancerId, milestones } = req.body;
     const clientId = (req.user as JwtPayload).userId;

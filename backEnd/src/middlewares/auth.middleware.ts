@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 import { JwtPayload } from "jsonwebtoken";
 
 interface AuthenticatedRequest extends Request{
-    user?: JwtPayload | string;
+    user?: JwtPayload;
 }
 
 export const verifyJWT = asyncHandler(
