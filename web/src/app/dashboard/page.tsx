@@ -31,12 +31,8 @@ export default function Dashboard() {
   };
 
   const handleHireFreelancer = () => {
-    // In a real app, this would open a project creation flow
-    alert(
-      `You're about to hire ${
-        ["Alex Morgan", "Jamie Smith", "Taylor Wong"][selectedFreelancer! - 1]
-      }!`
-    );
+    // Instead of just showing an alert, we'll navigate to the proposal creation page
+    router.push(`/projects/new?freelancerId=${selectedFreelancer}`);
     closeProfileModal();
   };
 
