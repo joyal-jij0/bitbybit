@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -28,12 +29,18 @@ export default function Home() {
           </a>
         </div>
         <div className="flex space-x-4">
-          <button className="px-4 py-2 rounded-full border border-gray-300 hover:border-blue-600 transition-colors">
+          <Link
+            href="/auth/login"
+            className="px-4 py-2 rounded-full border border-gray-300 hover:border-blue-600 transition-colors"
+          >
             Login
-          </button>
-          <button className="px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors">
+          </Link>
+          <Link
+            href="/auth/signup"
+            className="px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors"
+          >
             Sign Up
-          </button>
+          </Link>
         </div>
       </nav>
 
@@ -283,9 +290,12 @@ export default function Home() {
             </p>
           </div>
           <div className="md:w-1/3 flex justify-center">
-            <button className="px-8 py-4 bg-white text-blue-600 rounded-full font-bold hover:bg-blue-50 transition-colors">
+            <Link
+              href="/auth/signup"
+              className="px-8 py-4 bg-white text-blue-600 rounded-full font-bold hover:bg-blue-50 transition-colors"
+            >
               Sign Up Free
-            </button>
+            </Link>
           </div>
         </div>
       </section>
