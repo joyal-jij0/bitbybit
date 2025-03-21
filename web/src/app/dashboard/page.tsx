@@ -12,6 +12,57 @@ export default function Dashboard() {
     null
   );
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+
+  // Dummy notification data - in a real app, this would come from your API
+  const notifications =
+    userType === "freelancer"
+      ? [
+          {
+            id: 1,
+            type: "proposal",
+            title: "New Project Proposal",
+            message:
+              "BrandTech Inc. has sent you a project proposal for 'E-commerce Website Redesign'",
+            time: "2 hours ago",
+            unread: true,
+            projectId: "p1",
+          },
+          {
+            id: 2,
+            type: "message",
+            title: "New Message",
+            message:
+              "You received a message from MobiTech Solutions regarding Mobile App project",
+            time: "1 day ago",
+            unread: false,
+            projectId: "p2",
+          },
+        ]
+      : [
+          {
+            id: 1,
+            type: "proposal_response",
+            title: "Proposal Accepted",
+            message:
+              "Alex Morgan has accepted your proposal for 'E-commerce Website Redesign'",
+            time: "5 hours ago",
+            unread: true,
+            projectId: "p1",
+          },
+          {
+            id: 2,
+            type: "milestone",
+            title: "Milestone Completed",
+            message:
+              "Taylor Wong has completed the first milestone for Mobile App Development",
+            time: "2 days ago",
+            unread: false,
+            projectId: "p3",
+          },
+        ];
+
+  const unreadCount = notifications.filter((n) => n.unread).length;
 
   const toggleUserType = () => {
     setUserType((prev) => (prev === "client" ? "freelancer" : "client"));
@@ -31,9 +82,27 @@ export default function Dashboard() {
   };
 
   const handleHireFreelancer = () => {
-    // Instead of just showing an alert, we'll navigate to the proposal creation page
     router.push(`/projects/new?freelancerId=${selectedFreelancer}`);
     closeProfileModal();
+  };
+
+  const toggleNotifications = () => {
+    setShowNotifications(!showNotifications);
+  };
+
+  const handleNotificationClick = (notification: any) => {
+    if (userType === "freelancer" && notification.type === "proposal") {
+      router.push(`/proposals/review/${notification.projectId}`);
+    } else if (
+      userType === "client" &&
+      notification.type === "proposal_response"
+    ) {
+      router.push(`/projects/details/${notification.projectId}`);
+    } else {
+      // Other notification types can route to different pages
+      router.push(`/projects/details/${notification.projectId}`);
+    }
+    setShowNotifications(false);
   };
 
   // Freelancer profile data
@@ -87,6 +156,108 @@ export default function Dashboard() {
                 {userType === "client" ? "Client" : "Freelancer"}
               </button>
             </div>
+
+            {/* Notification Bell */}
+            <div className="relative">
+              <button
+                onClick={toggleNotifications}
+                className="p-1 rounded-full text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-100 focus:outline-none"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                  />
+                </svg>
+                {unreadCount > 0 && (
+                  <span className="absolute top-0 right-0 block h-4 w-4 rounded-full bg-red-500 text-[10px] text-white text-center leading-4">
+                    {unreadCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Notification Dropdown */}
+              {showNotifications && (
+                <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-lg shadow-lg py-1 z-10 border border-gray-200 dark:border-gray-700">
+                  <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+                    <h3 className="font-medium dark:text-white">
+                      Notifications
+                    </h3>
+                    <button className="text-sm text-blue-600 dark:text-blue-400">
+                      Mark all as read
+                    </button>
+                  </div>
+
+                  <div className="max-h-96 overflow-y-auto">
+                    {notifications.length > 0 ? (
+                      notifications.map((notification) => (
+                        <button
+                          key={notification.id}
+                          onClick={() => handleNotificationClick(notification)}
+                          className={`w-full text-left px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-start ${
+                            notification.unread
+                              ? "bg-blue-50 dark:bg-blue-900/10"
+                              : ""
+                          }`}
+                        >
+                          <div
+                            className={`flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center mr-3 ${
+                              notification.unread
+                                ? "bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400"
+                                : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
+                            }`}
+                          >
+                            {notification.type === "proposal" ||
+                            notification.type === "proposal_response"
+                              ? "P"
+                              : "M"}
+                          </div>
+                          <div>
+                            <p
+                              className={`text-sm font-medium ${
+                                notification.unread
+                                  ? "text-gray-900 dark:text-white"
+                                  : "text-gray-700 dark:text-gray-300"
+                              }`}
+                            >
+                              {notification.title}
+                            </p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                              {notification.message}
+                            </p>
+                            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                              {notification.time}
+                            </p>
+                          </div>
+                          {notification.unread && (
+                            <span className="ml-auto flex-shrink-0 h-2 w-2 bg-blue-600 rounded-full"></span>
+                          )}
+                        </button>
+                      ))
+                    ) : (
+                      <div className="px-4 py-6 text-center text-gray-500 dark:text-gray-400">
+                        No notifications yet
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="px-4 py-2 border-t border-gray-200 dark:border-gray-700 text-center">
+                    <button className="text-sm text-blue-600 dark:text-blue-400">
+                      View all notifications
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
             <div className="flex items-center space-x-2">
               <div className="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm">
                 U
