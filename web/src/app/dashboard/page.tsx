@@ -8,9 +8,11 @@ export default function Dashboard() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<"feed" | "projects">("feed");
   const [userType, setUserType] = useState<"freelancer" | "client">("client");
+  const [selectedFreelancer, setSelectedFreelancer] = useState<number | null>(
+    null
+  );
+  const [showProfileModal, setShowProfileModal] = useState(false);
 
-  // In a real app, you would fetch the user type from your auth system
-  // For demo purposes, we'll toggle between them with a button
   const toggleUserType = () => {
     setUserType((prev) => (prev === "client" ? "freelancer" : "client"));
   };
@@ -18,6 +20,56 @@ export default function Dashboard() {
   const handleLogout = () => {
     router.push("/");
   };
+
+  const openProfileModal = (freelancerId: number) => {
+    setSelectedFreelancer(freelancerId);
+    setShowProfileModal(true);
+  };
+
+  const closeProfileModal = () => {
+    setShowProfileModal(false);
+  };
+
+  const handleHireFreelancer = () => {
+    // In a real app, this would open a project creation flow
+    alert(
+      `You're about to hire ${
+        ["Alex Morgan", "Jamie Smith", "Taylor Wong"][selectedFreelancer! - 1]
+      }!`
+    );
+    closeProfileModal();
+  };
+
+  // Freelancer profile data
+  const freelancerProfiles = [
+    {
+      name: "Alex Morgan",
+      title: "Full Stack Developer",
+      skills: ["React", "Node.js", "TypeScript", "MongoDB"],
+      hourlyRate: "$55/hr",
+      rating: 4,
+      reviews: 24,
+      bio: "Full stack developer with over 5 years of experience building web applications. Specialized in React, Node.js, and TypeScript. I've worked with startups and enterprise clients across fintech, e-commerce, and SaaS.",
+    },
+    {
+      name: "Jamie Smith",
+      title: "UX/UI Designer",
+      skills: ["Figma", "UI Design", "User Research", "Wireframing"],
+      hourlyRate: "$50/hr",
+      rating: 4,
+      reviews: 17,
+      bio: "Creative UI/UX designer with a passion for creating intuitive and engaging user experiences. I focus on research-driven design that solves real user problems while maintaining visual coherence and brand identity.",
+    },
+    {
+      name: "Taylor Wong",
+      title: "Mobile Developer",
+      skills: ["React Native", "iOS", "Android", "Flutter"],
+      hourlyRate: "$60/hr",
+      rating: 4,
+      reviews: 31,
+      bio: "Mobile app developer specialized in cross-platform solutions. I've built and shipped over 20 mobile apps to the App Store and Google Play. My focus is on performance, clean code, and intuitive UX.",
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-black font-[family-name:var(--font-geist-sans)]">
@@ -157,7 +209,10 @@ export default function Dashboard() {
                         </div>
                       </div>
                       <div className="ml-auto">
-                        <button className="px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors text-sm">
+                        <button
+                          onClick={() => openProfileModal(i)}
+                          className="px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors text-sm"
+                        >
                           View Profile
                         </button>
                       </div>
@@ -414,6 +469,110 @@ export default function Dashboard() {
           </div>
         )}
       </main>
+
+      {/* Freelancer Profile Modal */}
+      {showProfileModal && selectedFreelancer && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg max-w-xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+              <h3 className="text-xl font-bold dark:text-white">
+                Freelancer Profile
+              </h3>
+              <button
+                onClick={closeProfileModal}
+                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              >
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
+            <div className="p-6">
+              <div className="flex items-start">
+                <div className="h-16 w-16 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center text-blue-600 dark:text-blue-400 text-xl font-bold mr-4">
+                  F{selectedFreelancer}
+                </div>
+                <div>
+                  <h3 className="text-2xl font-semibold dark:text-white">
+                    {freelancerProfiles[selectedFreelancer - 1].name}
+                  </h3>
+                  <p className="text-blue-600 dark:text-blue-400 font-medium">
+                    {freelancerProfiles[selectedFreelancer - 1].title}
+                  </p>
+                  <div className="mt-1 flex items-center">
+                    <div className="flex text-yellow-400">
+                      {"★".repeat(4)}
+                      {"☆".repeat(1)}
+                    </div>
+                    <span className="ml-2 text-sm text-gray-500 dark:text-gray-400">
+                      ({freelancerProfiles[selectedFreelancer - 1].reviews}{" "}
+                      reviews)
+                    </span>
+                  </div>
+                </div>
+                <div className="ml-auto text-right">
+                  <div className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                    {freelancerProfiles[selectedFreelancer - 1].hourlyRate}
+                  </div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">
+                    Hourly Rate
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6">
+                <h4 className="font-medium dark:text-white mb-2">About</h4>
+                <p className="text-gray-600 dark:text-gray-300">
+                  {freelancerProfiles[selectedFreelancer - 1].bio}
+                </p>
+              </div>
+
+              <div className="mt-6">
+                <h4 className="font-medium dark:text-white mb-2">Skills</h4>
+                <div className="flex flex-wrap gap-2">
+                  {freelancerProfiles[selectedFreelancer - 1].skills.map(
+                    (skill) => (
+                      <span
+                        key={skill}
+                        className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-sm rounded-full"
+                      >
+                        {skill}
+                      </span>
+                    )
+                  )}
+                </div>
+              </div>
+
+              <div className="mt-8 flex flex-col sm:flex-row gap-4">
+                <button
+                  onClick={handleHireFreelancer}
+                  className="px-6 py-3 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors text-sm flex-1"
+                >
+                  Hire Freelancer
+                </button>
+                <button
+                  onClick={() =>
+                    alert("Message functionality would be implemented here")
+                  }
+                  className="px-6 py-3 border border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400 rounded-full hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors text-sm flex-1"
+                >
+                  Message
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
