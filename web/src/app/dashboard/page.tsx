@@ -1,18 +1,65 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import api, { getUserId } from "@/lib/api";
 
 export default function Dashboard() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<"feed" | "projects">("feed");
-  const [userType, setUserType] = useState<"freelancer" | "client">("client");
+  const [userType, setUserType] = useState<"freelancer" | "client" | null>(
+    null
+  );
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedFreelancer, setSelectedFreelancer] = useState<number | null>(
     null
   );
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch the user profile to determine user type
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        setIsLoading(true);
+        const userId = getUserId();
+
+        if (!userId) {
+          console.error("No user ID found, redirecting to login");
+          router.push("/auth/login");
+          return;
+        }
+
+        console.log("Fetching user profile for ID:", userId);
+        const response = await api.get(`/users/`);
+        console.log("User profile response:", response.data);
+
+        // Determine user type based on profile data
+        const userData = response.data.data;
+
+        if (userData.freelancer) {
+          console.log("User is a freelancer");
+          setUserType("freelancer");
+        } else if (userData.client) {
+          console.log("User is a client");
+          setUserType("client");
+        } else {
+          // If no profile exists, redirect to onboarding
+          console.log("No profile found, redirecting to onboarding");
+          router.push("/onboarding");
+        }
+      } catch (err) {
+        console.error("Error fetching user profile:", err);
+        setError("Failed to load profile data. Please try again.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchUserProfile();
+  }, [router]);
 
   // Dummy notification data - in a real app, this would come from your API
   const notifications: Notification[] =
@@ -64,11 +111,12 @@ export default function Dashboard() {
 
   const unreadCount = notifications.filter((n) => n.unread).length;
 
-  const toggleUserType = () => {
-    setUserType((prev) => (prev === "client" ? "freelancer" : "client"));
-  };
-
   const handleLogout = () => {
+    // Clear authentication tokens
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("userId");
+
     router.push("/");
   };
 
@@ -92,7 +140,7 @@ export default function Dashboard() {
 
   interface Notification {
     id: number;
-    type: 'proposal' | 'proposal_response' | 'message' | 'milestone';
+    type: "proposal" | "proposal_response" | "message" | "milestone";
     title: string;
     message: string;
     time: string;
@@ -114,6 +162,63 @@ export default function Dashboard() {
     }
     setShowNotifications(false);
   };
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+        <div className="text-center">
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-blue-600 border-r-transparent"></div>
+          <p className="mt-4 text-gray-600 dark:text-gray-300">
+            Loading your dashboard...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error || !userType) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 max-w-md w-full text-center">
+          <svg
+            className="h-12 w-12 text-red-500 mx-auto mb-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+            />
+          </svg>
+          <h2 className="text-xl font-bold mb-4 dark:text-white">
+            {error || "Unable to determine your account type"}
+          </h2>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">
+            Please try again or contact support if the problem persists.
+          </p>
+          <div className="flex justify-center space-x-4">
+            <button
+              onClick={() => router.push("/onboarding")}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            >
+              Set Up Profile
+            </button>
+            <button
+              onClick={() => window.location.reload()}
+              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Freelancer profile data
   const freelancerProfiles = [
@@ -158,13 +263,10 @@ export default function Dashboard() {
           </div>
           <div className="flex items-center space-x-4">
             <div className="hidden md:flex items-center text-sm text-gray-500 dark:text-gray-400">
-              Currently viewing as:
-              <button
-                onClick={toggleUserType}
-                className="ml-2 px-3 py-1 bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-full hover:bg-blue-200 dark:hover:bg-blue-900"
-              >
+              Account type:
+              <span className="ml-2 px-3 py-1 bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-blue-400 rounded-full">
                 {userType === "client" ? "Client" : "Freelancer"}
-              </button>
+              </span>
             </div>
 
             {/* Notification Bell */}
@@ -573,12 +675,12 @@ export default function Dashboard() {
                       </>
                     )}
                   </div>
-                    <button 
-                    onClick={() => router.push('/projects/details/p1')} 
+                  <button
+                    onClick={() => router.push("/projects/details/p1")}
                     className="px-4 py-2 border border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400 rounded-full hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors text-sm"
-                    >
+                  >
                     View Project
-                    </button>
+                  </button>
                 </div>
               </div>
 
