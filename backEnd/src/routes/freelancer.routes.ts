@@ -9,9 +9,10 @@ import { verifyJWT } from "../middlewares/auth.middleware";
 
 const router = express.Router();
 
-router.route('/:userId').get(verifyJWT, getFreelancerProfile);
+
 router.route('/').post(verifyJWT, createFreelancerProfile);
 router.route('/').put(verifyJWT, updateFreelancerProfile);
 router.route('/getAll').get(verifyJWT, getAllFreelancers)
+router.route('/:userId').get(verifyJWT, getFreelancerProfile);
 
 export default router;
