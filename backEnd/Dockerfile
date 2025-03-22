@@ -20,4 +20,4 @@ RUN npm run build && npx prisma generate
 EXPOSE 3000
 
 # Define the command to run your application
-CMD ["node", "./dist/src/index.js"]
+CMD ["node", "./dist/index.js"]
