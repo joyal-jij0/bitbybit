@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import api, { getUserId } from "@/lib/api";
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -10,6 +11,8 @@ export default function OnboardingPage() {
     null
   );
   const [step, setStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
   const [formData, setFormData] = useState({
     fullName: "",
     headline: "",
@@ -36,11 +39,45 @@ export default function OnboardingPage() {
     setSkills(skills.filter((s) => s !== skill));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, you would save the user data here
-    // For now, just redirect to the dashboard
-    router.push("/dashboard");
+    setIsSubmitting(true);
+    setError("");
+
+    try {
+      const userId = getUserId();
+      if (!userId) {
+        throw new Error("User ID not found. Please log in again.");
+      }
+
+      // Prepare the data to send
+      const profileData = {
+        userId,
+        headline: formData.headline,
+        bio: formData.bio,
+        location: formData.location,
+        ...(userType === "freelancer" && {
+          portfolioUrl: formData.portfolioUrl
+            ? `https://${formData.portfolioUrl}`
+            : "",
+          skills: skills,
+        }),
+      };
+
+      // Make API call to different endpoints based on user type
+      const endpoint = userType === "freelancer" ? "/freelancers" : "/clients";
+      const response = await api.post(endpoint, profileData);
+
+      console.log(`${userType} profile created:`, response.data);
+
+      // Redirect to the dashboard on success
+      router.push("/dashboard");
+    } catch (err) {
+      console.error("Profile setup error:", err);
+      setError("Failed to complete profile setup. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // User type selection step
@@ -139,8 +176,15 @@ export default function OnboardingPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
       <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8 max-w-2xl w-full">
         <h1 className="text-2xl font-bold mb-8 dark:text-white">
-          Set up your profile
+          Set up your {userType === "freelancer" ? "freelancer" : "client"}{" "}
+          profile
         </h1>
+
+        {error && (
+          <div className="mb-6 p-3 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 rounded-lg">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
@@ -299,9 +343,10 @@ export default function OnboardingPage() {
             </button>
             <button
               type="submit"
-              className="px-6 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-md hover:bg-blue-700 dark:hover:bg-blue-600"
+              disabled={isSubmitting}
+              className="px-6 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-70 disabled:cursor-not-allowed"
             >
-              Complete Setup
+              {isSubmitting ? "Processing..." : "Complete Setup"}
             </button>
           </div>
         </form>
