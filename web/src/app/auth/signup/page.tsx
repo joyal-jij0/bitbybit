@@ -23,11 +23,12 @@ export default function SignupPage() {
       // Generate random email
       const randomString = Math.random().toString(36).substring(2, 10);
       const testEmail = `test_${randomString}@example.com`;
+      const testName = `test_${randomString}`;
 
       // Make API call to signup endpoint
       const response = await api.post("/users/signin", {
         email: testEmail,
-        name: randomString
+        name: testName
       });
 
       console.log("response", response)

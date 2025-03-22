@@ -15,6 +15,7 @@ export default function OnboardingPage() {
     headline: "",
     bio: "",
     location: "",
+    portfolioUrl: "", // Added portfolio URL field
   });
   const [skills, setSkills] = useState<string[]>([]);
 
@@ -144,24 +145,6 @@ export default function OnboardingPage() {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label
-              htmlFor="fullName"
-              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-            >
-              Full Name
-            </label>
-            <input
-              type="text"
-              id="fullName"
-              name="fullName"
-              value={formData.fullName}
-              onChange={handleInputChange}
-              required
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-            />
-          </div>
-
-          <div>
-            <label
               htmlFor="headline"
               className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
             >
@@ -221,58 +204,89 @@ export default function OnboardingPage() {
           </div>
 
           {userType === "freelancer" && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Skills
-              </label>
-              <div className="flex flex-wrap gap-2 mb-2">
-                {skills.map((skill) => (
-                  <span
-                    key={skill}
-                    className="bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-400 px-3 py-1 rounded-full text-sm flex items-center"
-                  >
-                    {skill}
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveSkill(skill)}
-                      className="ml-2 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-500"
-                    >
-                      ×
-                    </button>
+            <>
+              {/* Portfolio URL input for freelancers */}
+              <div>
+                <label
+                  htmlFor="portfolioUrl"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                >
+                  Portfolio URL
+                </label>
+                <div className="flex">
+                  <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400">
+                    https://
                   </span>
-                ))}
+                  <input
+                    type="text"
+                    id="portfolioUrl"
+                    name="portfolioUrl"
+                    value={formData.portfolioUrl}
+                    onChange={handleInputChange}
+                    placeholder="yourportfolio.com"
+                    className="flex-grow px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-r-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                  />
+                </div>
+                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+                  Share your portfolio to showcase your work to potential
+                  clients
+                </p>
               </div>
 
-              <div className="flex">
-                <input
-                  type="text"
-                  id="skill"
-                  placeholder="Add a skill (e.g. JavaScript)"
-                  className="flex-grow px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-l-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
-                  onKeyPress={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      const target = e.target as HTMLInputElement;
-                      handleAddSkill(target.value);
-                      target.value = "";
-                    }
-                  }}
-                />
-                <button
-                  type="button"
-                  className="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-r-md hover:bg-blue-700 dark:hover:bg-blue-600"
-                  onClick={() => {
-                    const input = document.getElementById(
-                      "skill"
-                    ) as HTMLInputElement;
-                    handleAddSkill(input.value);
-                    input.value = "";
-                  }}
-                >
-                  Add
-                </button>
+              {/* Skills section */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Skills
+                </label>
+                <div className="flex flex-wrap gap-2 mb-2">
+                  {skills.map((skill) => (
+                    <span
+                      key={skill}
+                      className="bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-400 px-3 py-1 rounded-full text-sm flex items-center"
+                    >
+                      {skill}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveSkill(skill)}
+                        className="ml-2 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-500"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
+
+                <div className="flex">
+                  <input
+                    type="text"
+                    id="skill"
+                    placeholder="Add a skill (e.g. JavaScript)"
+                    className="flex-grow px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-l-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+                    onKeyPress={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        const target = e.target as HTMLInputElement;
+                        handleAddSkill(target.value);
+                        target.value = "";
+                      }
+                    }}
+                  />
+                  <button
+                    type="button"
+                    className="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white rounded-r-md hover:bg-blue-700 dark:hover:bg-blue-600"
+                    onClick={() => {
+                      const input = document.getElementById(
+                        "skill"
+                      ) as HTMLInputElement;
+                      handleAddSkill(input.value);
+                      input.value = "";
+                    }}
+                  >
+                    Add
+                  </button>
+                </div>
               </div>
-            </div>
+            </>
           )}
 
           <div className="flex justify-end space-x-4 pt-4">
