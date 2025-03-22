@@ -3,17 +3,11 @@ import { asyncHandler } from "../utils/asyncHandler";
 import { Response, Request } from "express";
 import { PrismaClient } from "@prisma/client";
 import { prisma } from "..";
+import jwt, {JwtPayload} from 'jsonwebtoken'
 
 const createClientProfile = asyncHandler(async (req: Request, res: Response) => {
-    const { userId, purpose } = req.body;
-
-    if (!userId) {
-        return res.status(400).json(new ApiResponse({ statusCode: 400, data:null, message: "User ID is required." }));
-    }
-    
-    if (purpose && typeof purpose !== "string") {
-        return res.status(400).json(new ApiResponse({ statusCode: 400, data:null, message: "Purpose must be a string." }));
-    }
+    const {headline, bio, location } = req.body;
+    const userId = (req.user as JwtPayload).userId;
 
     const userExists = await prisma.user.findUnique({ where: { id: userId } });
     if (!userExists) {
@@ -22,7 +16,7 @@ const createClientProfile = asyncHandler(async (req: Request, res: Response) => 
 
     try {
         const client = await prisma.client.create({
-            data: { userId, purpose }
+            data: { userId, headline, bio, location }
         });
         return res.status(201).json(new ApiResponse({ statusCode: 201, data: client, message: "Client profile created successfully." }));
     } catch (error) {
@@ -31,15 +25,14 @@ const createClientProfile = asyncHandler(async (req: Request, res: Response) => 
 });
 
 const updateClientProfile = asyncHandler(async (req: Request, res: Response) => {
-    const { userId, purpose } = req.body;
+    const { headline, bio, location } = req.body;
+    const userId = (req.user as JwtPayload).userId;
 
-    if (!userId) {
-        return res.status(400).json(new ApiResponse({ statusCode: 400, data:null, message: "User ID is required." }));
-    }
+
     
     const client = await prisma.client.update({
         where: { userId },
-        data: { purpose }
+        data: { headline, bio, location }
     });
     return res.status(200).json(new ApiResponse({ statusCode: 200, data: client, message: "Client profile updated successfully." }));
 });
@@ -63,11 +56,8 @@ const getClientProfile = asyncHandler(async (req: Request, res: Response) => {
 });
 
 const createFreelancerProfile = asyncHandler(async (req: Request, res: Response) => {
-    const { userId, skills, portfolioUrl } = req.body;
-
-    if (!userId) {
-        return res.status(400).json(new ApiResponse({ statusCode: 400, data:null, message: "User ID is required." }));
-    }
+    const { skills, portfolioUrl, headline, bio, location } = req.body;
+    const userId = (req.user as JwtPayload).userId;
     
     if (!Array.isArray(skills) || skills.some(skill => typeof skill !== "string")) {
         return res.status(400).json(new ApiResponse({ statusCode: 400, data:null, message: "Skills must be an array of strings." }));
@@ -84,7 +74,7 @@ const createFreelancerProfile = asyncHandler(async (req: Request, res: Response)
 
     try {
         const freelancer = await prisma.freelancer.create({
-            data: { userId, skills, portfolioUrl }
+            data: { userId, skills, portfolioUrl, headline, bio, location }
         });
         return res.status(201).json(new ApiResponse({ statusCode: 201, data: freelancer, message: "Freelancer profile created successfully." }));
     } catch (error) {
@@ -93,24 +83,19 @@ const createFreelancerProfile = asyncHandler(async (req: Request, res: Response)
 });
 
 const updateFreelancerProfile = asyncHandler(async (req: Request, res: Response) => {
-    const { userId, skills, portfolioUrl } = req.body;
-
-    if (!userId) {
-        return res.status(400).json(new ApiResponse({ statusCode: 400, data:null, message: "User ID is required." }));
-    }
+    const { skills, portfolioUrl, headline, bio, location } = req.body;
+    const userId = (req.user as JwtPayload).userId;
     
     const freelancer = await prisma.freelancer.update({
         where: { userId },
-        data: { skills, portfolioUrl }
+        data: { skills, portfolioUrl, headline, bio, location }
     });
     return res.status(200).json(new ApiResponse({ statusCode: 200, data: freelancer, message: "Freelancer profile updated successfully." }));
 });
 
 const getFreelancerProfile = asyncHandler(async (req: Request, res: Response) => {
-    const { userId } = req.params;
-    if (!userId) {
-        return res.status(400).json(new ApiResponse({ statusCode: 400, data:null, message: "User ID is required." }));
-    }
+    const userId = (req.user as JwtPayload).userId;
+
     
     const freelancer = await prisma.freelancer.findUnique({
         where: { userId },
