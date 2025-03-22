@@ -4,16 +4,37 @@ import { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 
+interface Milestone {
+  id: number;
+  title: string;
+  description: string;
+  dueDate: string;
+  amount: string;
+}
+
+interface Proposal {
+  id: string;
+  clientName: string;
+  clientAvatar: string;
+  projectTitle: string;
+  description: string;
+  postedDate: string;
+  budget: string;
+  timeline: string;
+  milestones: Milestone[];
+  status: string;
+}
+
 export default function ProposalReviewPage() {
   const router = useRouter();
   const params = useParams();
   const [activeTab, setActiveTab] = useState<"details" | "edit">("details");
   const [loading, setLoading] = useState(true);
-  const [proposal, setProposal] = useState<any>(null);
+  const [proposal, setProposal] = useState<Proposal | null>(null);
 
   // Dummy proposal data - in a real app, this would be fetched based on the ID
   const dummyProposal = {
-    id: params.id,
+    id: params.id as string,
     clientName: "BrandTech Inc.",
     clientAvatar: "B",
     projectTitle: "E-commerce Website Redesign",
@@ -130,14 +151,14 @@ export default function ProposalReviewPage() {
             </div>
             <div className="mt-4 flex items-center">
               <div className="h-10 w-10 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center text-blue-600 dark:text-blue-400 text-lg font-bold mr-3">
-                {proposal.clientAvatar}
+                {proposal?.clientAvatar}
               </div>
               <div>
                 <h2 className="font-medium dark:text-white">
-                  {proposal.clientName}
+                  {proposal?.clientName}
                 </h2>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Sent on {proposal.postedDate}
+                  Sent on {proposal?.postedDate}
                 </p>
               </div>
             </div>
@@ -177,10 +198,10 @@ export default function ProposalReviewPage() {
               {/* Project Overview */}
               <div className="mb-8">
                 <h3 className="text-lg font-medium dark:text-white mb-3">
-                  {proposal.projectTitle}
+                  {proposal?.projectTitle}
                 </h3>
                 <p className="text-gray-600 dark:text-gray-300">
-                  {proposal.description}
+                  {proposal?.description}
                 </p>
 
                 <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -189,7 +210,7 @@ export default function ProposalReviewPage() {
                       Total Budget
                     </span>
                     <span className="text-lg font-semibold dark:text-white">
-                      {proposal.budget}
+                      {proposal?.budget}
                     </span>
                   </div>
                   <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
@@ -197,7 +218,7 @@ export default function ProposalReviewPage() {
                       Project Timeline
                     </span>
                     <span className="text-lg font-semibold dark:text-white">
-                      {proposal.timeline}
+                      {proposal?.timeline}
                     </span>
                   </div>
                   <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
@@ -217,7 +238,7 @@ export default function ProposalReviewPage() {
                   Milestones & Payments
                 </h3>
                 <div className="space-y-4">
-                  {proposal.milestones.map((milestone: any, index: number) => (
+                  {proposal?.milestones.map((milestone: Milestone, index: number) => (
                     <div
                       key={milestone.id}
                       className="border border-gray-200 dark:border-gray-700 rounded-lg p-4"
@@ -286,7 +307,7 @@ export default function ProposalReviewPage() {
                     </label>
                     <input
                       type="text"
-                      defaultValue={proposal.projectTitle}
+                      defaultValue={proposal?.projectTitle}
                       className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
                     />
                   </div>
@@ -297,7 +318,7 @@ export default function ProposalReviewPage() {
                       Project Description
                     </label>
                     <textarea
-                      defaultValue={proposal.description}
+                      defaultValue={proposal?.description}
                       rows={4}
                       className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
                     />
@@ -310,7 +331,7 @@ export default function ProposalReviewPage() {
                     </label>
                     <input
                       type="text"
-                      defaultValue={proposal.timeline}
+                      defaultValue={proposal?.timeline}
                       className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
                     />
                   </div>
@@ -322,8 +343,8 @@ export default function ProposalReviewPage() {
                     </label>
 
                     <div className="space-y-4">
-                      {proposal.milestones.map(
-                        (milestone: any, index: number) => (
+                      {proposal?.milestones.map(
+                        (milestone: Milestone) => (
                           <div
                             key={milestone.id}
                             className="border border-gray-200 dark:border-gray-700 rounded-lg p-4"

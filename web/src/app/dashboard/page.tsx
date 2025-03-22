@@ -15,7 +15,7 @@ export default function Dashboard() {
   const [showNotifications, setShowNotifications] = useState(false);
 
   // Dummy notification data - in a real app, this would come from your API
-  const notifications =
+  const notifications: Notification[] =
     userType === "freelancer"
       ? [
           {
@@ -90,7 +90,17 @@ export default function Dashboard() {
     setShowNotifications(!showNotifications);
   };
 
-  const handleNotificationClick = (notification: any) => {
+  interface Notification {
+    id: number;
+    type: 'proposal' | 'proposal_response' | 'message' | 'milestone';
+    title: string;
+    message: string;
+    time: string;
+    unread: boolean;
+    projectId: string;
+  }
+
+  const handleNotificationClick = (notification: Notification) => {
     if (userType === "freelancer" && notification.type === "proposal") {
       router.push(`/proposals/review/${notification.projectId}`);
     } else if (
