@@ -6,13 +6,8 @@ import { prisma } from "..";
 import jwt, {JwtPayload} from 'jsonwebtoken'
 
 const createClientProfile = asyncHandler(async (req: Request, res: Response) => {
-    const {headline, bio, location } = req.body;
+    const { headline, bio, location } = req.body;
     const userId = (req.user as JwtPayload).userId;
-
-    const userExists = await prisma.user.findUnique({ where: { id: userId } });
-    if (!userExists) {
-        return res.status(404).json(new ApiResponse({ statusCode: 404, data:null, message: "User not found." }));
-    }
 
     try {
         const client = await prisma.client.create({
@@ -27,8 +22,6 @@ const createClientProfile = asyncHandler(async (req: Request, res: Response) => 
 const updateClientProfile = asyncHandler(async (req: Request, res: Response) => {
     const { headline, bio, location } = req.body;
     const userId = (req.user as JwtPayload).userId;
-
-
     
     const client = await prisma.client.update({
         where: { userId },
@@ -94,9 +87,12 @@ const updateFreelancerProfile = asyncHandler(async (req: Request, res: Response)
 });
 
 const getFreelancerProfile = asyncHandler(async (req: Request, res: Response) => {
-    const userId = (req.user as JwtPayload).userId;
+    const { userId } = req.params;
 
-    
+    if (!userId) {
+        return res.status(400).json(new ApiResponse({ statusCode: 400, data:null, message: "User ID is required." }));
+    }
+
     const freelancer = await prisma.freelancer.findUnique({
         where: { userId },
         include: { user: true, jobs: true }
