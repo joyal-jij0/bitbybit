@@ -166,25 +166,31 @@ const signIn = asyncHandler(async (req: Request, res: Response) => {
 });
 
 const getProfile = asyncHandler(async (req: Request, res: Response) => {
-    const userId = (req.body as JwtPayload).userId;
+    const userId = (req.user as JwtPayload).userId;
 
-    const user = await prisma.user.findUnique({
-        where: {
-            id: userId,
-        },
-        include: {
-            client: true,
-            freelancer: true,
-        },
-    });
+    try {
+        const user = await prisma.user.findUnique({
+            where: {
+                id: userId,
+            },
+            include: {
+                client: true,
+                freelancer: true,
+            },
+        });
 
-    return res.status(200).json(
-        new ApiResponse<typeof user>({
-            statusCode: 200,
-            data: user,
-            message: "User profile fetched successfully",
-        })
-    )
+        return res.status(200).json(
+            new ApiResponse<typeof user>({
+                statusCode: 200,
+                data: user,
+                message: "User profile fetched successfully",
+            })
+        )
+    }
+    catch (error) {
+        console.error(error);
+        throw new ApiError(500, "Error fetching user profile");
+    }
 })
 
 

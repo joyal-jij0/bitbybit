@@ -15,8 +15,6 @@ model User {
   client       Client?
   freelancer   Freelancer?
   disputes     Dispute[]
-  refreshToken String?     @unique
-  accessToken  String?     @unique
 }
 
 model Client {
