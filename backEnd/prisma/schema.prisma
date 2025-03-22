@@ -8,23 +8,24 @@ datasource db {
 }
 
 model User {
-  id           String      @id @default(uuid())
-  email        String      @unique
-  name         String
-  createdAt    DateTime    @default(now())
-  client       Client?
-  freelancer   Freelancer?
-  disputes     Dispute[]
+  id         String      @id @default(uuid())
+  email      String      @unique
+  name       String
+  createdAt  DateTime    @default(now())
+  client     Client?
+  freelancer Freelancer?
+  disputes   Dispute[]
+  Job        Job[]
 }
 
 model Client {
-  id       String  @id @default(uuid())
-  userId   String  @unique
+  id       String @id @default(uuid())
+  userId   String @unique
   headline String
-  bio     String
+  bio      String
   location String
-  projects Job[]   @relation("ClientJobs")
-  user     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projects Job[]  @relation("ClientJobs")
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Freelancer {
@@ -36,6 +37,7 @@ model Freelancer {
   location       String
   skills         String[]
   portfolioUrl   String?
+  rate           String?
   jobs           Job[]            @relation("FreelancerJobs")
   user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   WorkSubmission WorkSubmission[]
@@ -54,8 +56,15 @@ model Job {
   freelancer   Freelancer? @relation("FreelancerJobs", fields: [freelancerId], references: [id])
   Dispute      Dispute[]
   completedAt  DateTime?
-  isRejected   Boolean     @default(false)
+  isRejected   Boolean?    @default(false)
   rejectReason String?
+  isAccepted   Boolean?    @default(false)
+  acceptedAt   DateTime?
+
+  isSuggested     Boolean?  @default(false)
+  suggestedAt     DateTime?
+  suggestedBy     String?
+  suggestedByUser User?     @relation(fields: [suggestedBy], references: [id])
 }
 
 model Milestone {

@@ -202,13 +202,14 @@ const createFreelancerProfile = asyncHandler(
     console.log("🔹 CREATE FREELANCER PROFILE - Starting");
     console.log("Request body:", req.body);
 
-    const { skills, portfolioUrl, headline, bio, location } = req.body;
+    const { skills, portfolioUrl, headline, bio, location, rate } = req.body;
     console.log("Extracted fields:", {
       skills,
       portfolioUrl,
       headline,
       bio,
       location,
+      rate,
     });
 
     try {
@@ -271,7 +272,7 @@ const createFreelancerProfile = asyncHandler(
 
       console.log("🔸 Attempting to create freelancer profile in database");
       const freelancer = await prisma.freelancer.create({
-        data: { userId, skills, portfolioUrl, headline, bio, location },
+        data: { userId, skills, portfolioUrl, headline, bio, location, rate },
       });
       console.log("✅ Freelancer profile created successfully:", freelancer);
 
@@ -309,13 +310,14 @@ const updateFreelancerProfile = asyncHandler(
     console.log("🔹 UPDATE FREELANCER PROFILE - Starting");
     console.log("Request body:", req.body);
 
-    const { skills, portfolioUrl, headline, bio, location } = req.body;
+    const { skills, portfolioUrl, headline, bio, location, rate } = req.body;
     console.log("Extracted fields:", {
       skills,
       portfolioUrl,
       headline,
       bio,
       location,
+      rate,
     });
 
     try {
@@ -336,7 +338,7 @@ const updateFreelancerProfile = asyncHandler(
       console.log("🔸 Attempting to update freelancer profile in database");
       const freelancer = await prisma.freelancer.update({
         where: { userId },
-        data: { skills, portfolioUrl, headline, bio, location },
+        data: { skills, portfolioUrl, headline, bio, location, rate },
       });
       console.log("✅ Freelancer profile updated successfully:", freelancer);
 
