@@ -2,23 +2,62 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import api, { storeTokens, storeUserId } from "@/lib/api";
+import { useState } from "react";
 
 export default function SignupPage() {
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleGoogleSignup = () => {
     // For new users, redirect to onboarding
     router.push("/onboarding");
   };
 
-  const handleDummySignup = () => {
-    // For new users, redirect to onboarding
-    router.push("/onboarding");
+  const handleDummySignup = async () => {
+    try {
+      setIsLoading(true);
+      setError("");
+
+      // Generate random email
+      const randomString = Math.random().toString(36).substring(2, 10);
+      const testEmail = `test_${randomString}@example.com`;
+
+      // Make API call to signup endpoint
+      const response = await api.post("/users/signin", {
+        email: testEmail,
+        name: randomString
+      });
+
+      console.log("response", response)
+
+      // Store tokens and user ID
+      const { accessToken, refreshToken, userId } = response.data.data;
+      storeTokens(accessToken, refreshToken);
+      storeUserId(userId);
+
+      console.log("Signup successful with email:", testEmail);
+
+      // For new users, redirect to onboarding
+      router.push("/onboarding");
+    } catch (err) {
+      console.error("Signup error:", err);
+      setError("Failed to create account. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div className="w-full">
       <h2 className="text-2xl font-bold mb-6">Create your account</h2>
+
+      {error && (
+        <div className="mb-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm">
+          {error}
+        </div>
+      )}
 
       <div className="space-y-4">
         {/* Google Auth Button */}
@@ -60,9 +99,10 @@ export default function SignupPage() {
         {/* Dummy Signup Button */}
         <button
           onClick={handleDummySignup}
-          className="w-full border border-gray-300 rounded-full py-3 px-4 text-gray-600 hover:bg-gray-50 transition-all"
+          disabled={isLoading}
+          className="w-full border border-gray-300 rounded-full py-3 px-4 text-gray-600 hover:bg-gray-50 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
         >
-          Continue as Guest
+          {isLoading ? "Creating account..." : "Continue as Guest"}
         </button>
       </div>
 
