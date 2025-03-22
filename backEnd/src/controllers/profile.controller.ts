@@ -330,7 +330,7 @@ const updateFreelancerProfile = asyncHandler(
             data: null,
             message: "Authentication failed. User ID not found.",
           })
-        );
+        )
       }
 
       console.log("🔸 Attempting to update freelancer profile in database");
@@ -346,7 +346,7 @@ const updateFreelancerProfile = asyncHandler(
           data: freelancer,
           message: "Freelancer profile updated successfully.",
         })
-      );
+      )
     } catch (error: any) {
       console.error("❌ Error updating freelancer profile:", error);
       console.error("Error message:", error.message);
@@ -360,7 +360,7 @@ const updateFreelancerProfile = asyncHandler(
             data: null,
             message: "Freelancer profile not found.",
           })
-        );
+        )
       }
 
       return res.status(500).json(
@@ -369,10 +369,10 @@ const updateFreelancerProfile = asyncHandler(
           data: null,
           message: "Failed to update freelancer profile.",
         })
-      );
+      )
     }
   }
-);
+)
 
 const getFreelancerProfile = asyncHandler(
   async (req: Request, res: Response) => {
@@ -390,7 +390,7 @@ const getFreelancerProfile = asyncHandler(
           data: null,
           message: "User ID is required.",
         })
-      );
+      )
     }
 
     try {
@@ -398,7 +398,7 @@ const getFreelancerProfile = asyncHandler(
       const freelancer = await prisma.freelancer.findUnique({
         where: { userId },
         include: { user: true, jobs: true },
-      });
+      })
 
       if (!freelancer) {
         console.log("❓ Freelancer profile not found for user ID:", userId);
@@ -408,7 +408,7 @@ const getFreelancerProfile = asyncHandler(
             data: null,
             message: "Freelancer profile not found.",
           })
-        );
+        )
       }
 
       console.log("✅ Freelancer profile retrieved successfully");
@@ -418,7 +418,7 @@ const getFreelancerProfile = asyncHandler(
           data: freelancer,
           message: "Freelancer profile retrieved successfully.",
         })
-      );
+      )
     } catch (error: any) {
       console.error("❌ Error retrieving freelancer profile:", error);
       console.error("Error message:", error.message);
@@ -428,10 +428,35 @@ const getFreelancerProfile = asyncHandler(
           data: null,
           message: "Failed to retrieve freelancer profile.",
         })
-      );
+      )
     }
   }
-);
+)
+
+const getAllFreelancers = asyncHandler(async (req: Request, res: Response) => {
+
+  try {
+    const freelancers = await prisma.freelancer.findMany({
+      include: { user: true },
+    })
+
+    return res.status(200).json(
+      new ApiResponse({
+        statusCode: 200,
+        data: freelancers,
+        message: "Freelancers retrieved successfully.",
+      })
+    )
+  } catch (error: any) {
+    return res.status(500).json(
+      new ApiResponse({
+        statusCode: 500,
+        data: null,
+        message: "Failed to retrieve freelancers.",
+      })
+    );
+  }
+})
 
 export {
   createClientProfile,
@@ -440,4 +465,5 @@ export {
   createFreelancerProfile,
   updateFreelancerProfile,
   getFreelancerProfile,
+  getAllFreelancers,
 };
