@@ -355,7 +355,7 @@ export default function ProjectDetailsPage() {
             Project Not Found
           </div>
           <p className="mb-6 text-gray-600 dark:text-gray-300">
-            The project you're looking for doesn't exist or you don't have
+            The project you&apos;re looking for doesn&apos;t exist or you don&apos;t have
             access.
           </p>
           <Link
