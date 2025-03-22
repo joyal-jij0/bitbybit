@@ -50,6 +50,8 @@ model Job {
   client       Client      @relation("ClientJobs", fields: [clientId], references: [id])
   freelancer   Freelancer? @relation("FreelancerJobs", fields: [freelancerId], references: [id])
   Dispute      Dispute[]
+  completedAt  DateTime?
+  isRejected   Boolean     @default(false)
 }
 
 model Milestone {

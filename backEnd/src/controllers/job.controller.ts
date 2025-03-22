@@ -67,4 +67,18 @@ const getJobs = asyncHandler(async (req: Request, res: Response) => {
     )
 })
 
+const rejectJob = asyncHandler(async (req: Request, res: Response) => {
+})
+
+const acceptJob = asyncHandler(async (req: Request, res: Response) => {
+})
+
+const suggestJob = asyncHandler(async (req: Request, res: Response) => {
+})
+
+const completeJob = asyncHandler(async (req: Request, res: Response) => {
+})
+
+
+
 export { initJob, getJob, getJobs };

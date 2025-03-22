@@ -82,4 +82,13 @@ const deleteMilestone = asyncHandler(async (req: Request, res: Response) => {
     );
 });
 
+const submitMilestone = asyncHandler(async (req: Request, res: Response) => {
+})
+
+const approveMilestone = asyncHandler(async (req: Request, res: Response) => {
+})
+
+const rejectMilestone = asyncHandler(async (req: Request, res: Response) => {
+})
+
 export { getMilestones, createMilestone, updateMilestone, deleteMilestone };
