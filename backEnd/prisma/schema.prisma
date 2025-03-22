@@ -32,6 +32,7 @@ model Client {
 model Freelancer {
   id             String           @id @default(uuid())
   userId         String           @unique
+  rating         String?
   headline       String
   bio            String
   location       String

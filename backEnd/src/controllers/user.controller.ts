@@ -165,5 +165,30 @@ const signIn = asyncHandler(async (req: Request, res: Response) => {
     }
 });
 
+const getProfile = asyncHandler(async (req: Request, res: Response) => {
+    const userId = (req.body as JwtPayload).userId;
 
-export { refreshAccessToken, signIn };
+    const user = await prisma.user.findUnique({
+        where: {
+            id: userId,
+        },
+        include: {
+            client: true,
+            freelancer: true,
+        },
+    });
+
+    return res.status(200).json(
+        new ApiResponse<typeof user>({
+            statusCode: 200,
+            data: user,
+            message: "User profile fetched successfully",
+        })
+    )
+})
+
+
+
+
+
+export { refreshAccessToken, signIn, getProfile };
