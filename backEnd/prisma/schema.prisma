@@ -22,7 +22,9 @@ model User {
 model Client {
   id       String  @id @default(uuid())
   userId   String  @unique
-  purpose  String?
+  headline String
+  bio     String
+  location String
   projects Job[]   @relation("ClientJobs")
   user     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
@@ -30,6 +32,9 @@ model Client {
 model Freelancer {
   id             String           @id @default(uuid())
   userId         String           @unique
+  headline       String
+  bio            String
+  location       String
   skills         String[]
   portfolioUrl   String?
   jobs           Job[]            @relation("FreelancerJobs")
@@ -51,6 +56,7 @@ model Job {
   Dispute      Dispute[]
   completedAt  DateTime?
   isRejected   Boolean     @default(false)
+  rejectReason String?
 }
 
 model Milestone {

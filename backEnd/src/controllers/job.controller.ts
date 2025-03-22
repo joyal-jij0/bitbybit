@@ -68,6 +68,7 @@ const getJobs = asyncHandler(async (req: Request, res: Response) => {
 })
 
 const rejectJob = asyncHandler(async (req: Request, res: Response) => {
+    
 })
 
 const acceptJob = asyncHandler(async (req: Request, res: Response) => {
