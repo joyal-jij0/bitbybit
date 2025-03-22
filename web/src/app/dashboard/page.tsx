@@ -18,6 +18,19 @@ export default function Dashboard() {
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  interface FreelancerProfile {
+    id: number;
+    name: string;
+    title: string;
+    skills: string[];
+    hourlyRate: string;
+    rating: number;
+    reviews: number;
+    bio: string;
+  }
+  
+  const [freelancerProfiles, setFreelancerProfiles] = useState<FreelancerProfile[]>([]);
+  const [isFreelancersLoading, setIsFreelancersLoading] = useState<boolean>(false);
 
   // Fetch the user profile to determine user type
   useEffect(() => {
@@ -60,6 +73,40 @@ export default function Dashboard() {
 
     fetchUserProfile();
   }, [router]);
+  
+  useEffect(() => {
+    if (userType === "client" && activeTab === "feed") {
+      const fetchFreelancers = async () => {
+        setIsFreelancersLoading(true);
+        try {
+          const response = await api.get('/freelancers/getAll');
+          console.log("Freelancers data:", response.data);
+          
+          if (response.data?.data) {
+            setFreelancerProfiles(response.data.data.map((freelancer: any) => ({
+              id: freelancer.userId,
+              name: freelancer.user?.name || 'Unknown User',
+              title: freelancer.headline || 'Freelancer',
+              skills: freelancer.skills || [],
+              hourlyRate: "$50/hr", // This would come from the API if available
+              rating: 4, // This would come from the API if available
+              reviews: Math.floor(Math.random() * 30) + 5, // This would come from the API if available
+              bio: freelancer.bio || 'No bio available',
+            })));
+          }
+        } catch (err) {
+          console.error("Error fetching freelancers:", err);
+          setError("Failed to load freelancer data.");
+        } finally {
+          setIsFreelancersLoading(false);
+        }
+      };
+
+      fetchFreelancers();
+    }
+  }, [userType, activeTab]);
+
+
 
   // Dummy notification data - in a real app, this would come from your API
   const notifications: Notification[] =
@@ -221,35 +268,9 @@ export default function Dashboard() {
   }
 
   // Freelancer profile data
-  const freelancerProfiles = [
-    {
-      name: "Alex Morgan",
-      title: "Full Stack Developer",
-      skills: ["React", "Node.js", "TypeScript", "MongoDB"],
-      hourlyRate: "$55/hr",
-      rating: 4,
-      reviews: 24,
-      bio: "Full stack developer with over 5 years of experience building web applications. Specialized in React, Node.js, and TypeScript. I've worked with startups and enterprise clients across fintech, e-commerce, and SaaS.",
-    },
-    {
-      name: "Jamie Smith",
-      title: "UX/UI Designer",
-      skills: ["Figma", "UI Design", "User Research", "Wireframing"],
-      hourlyRate: "$50/hr",
-      rating: 4,
-      reviews: 17,
-      bio: "Creative UI/UX designer with a passion for creating intuitive and engaging user experiences. I focus on research-driven design that solves real user problems while maintaining visual coherence and brand identity.",
-    },
-    {
-      name: "Taylor Wong",
-      title: "Mobile Developer",
-      skills: ["React Native", "iOS", "Android", "Flutter"],
-      hourlyRate: "$60/hr",
-      rating: 4,
-      reviews: 31,
-      bio: "Mobile app developer specialized in cross-platform solutions. I've built and shipped over 20 mobile apps to the App Store and Google Play. My focus is on performance, clean code, and intuitive UX.",
-    },
-  ];
+  
+
+  
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-black font-[family-name:var(--font-geist-sans)]">
