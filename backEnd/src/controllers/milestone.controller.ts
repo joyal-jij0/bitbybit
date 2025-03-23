@@ -83,12 +83,153 @@ const deleteMilestone = asyncHandler(async (req: Request, res: Response) => {
 });
 
 const submitMilestone = asyncHandler(async (req: Request, res: Response) => {
+    const userId = (req.user as JwtPayload).userId;
+    try {
+        const user = await prisma.user.findUnique({
+            where: {
+                id: userId,
+            },
+            include: {
+                freelancer: true,
+            }
+        })
+
+        if (!user?.freelancer) {
+            return res.status(400).json(
+                new ApiResponse({
+                    statusCode: 400,
+                    data: null,
+                    message: "User is not a freelancer",
+                })
+            );
+        }
+
+        const { milestoneId, files, comments } = req.params;
+        await prisma.workSubmission.create({
+            data: {
+                milestoneId,
+                files,
+                comments,
+                freelancerId: user.freelancer.id,
+                updatedAt: new Date(),
+            },
+        })
+    
+        return res.status(201).json(
+            new ApiResponse({
+                statusCode: 201,
+                data: null,
+                message: "Milestone submitted",
+            })
+        );
+    } catch (error) {
+        return res.status(500).json(
+            new ApiResponse({
+                statusCode: 500,
+                data: null,
+                message: "Error submitting milestone",
+            })
+        )
+    }
 })
 
 const approveMilestone = asyncHandler(async (req: Request, res: Response) => {
+    const userId = (req.user as JwtPayload).userId;
+    try {
+        const user = await prisma.user.findUnique({
+            where: {
+                id: userId,
+            },
+            include: {
+                client: true,
+            }
+        })
+
+        if (!user?.client) {
+            return res.status(400).json(
+                new ApiResponse({
+                    statusCode: 400,
+                    data: null,
+                    message: "Unauthorized",
+                })
+            );
+        }
+
+        const { milestoneId } = req.params;
+        await prisma.workSubmission.update({
+            where: {
+                id: milestoneId,
+            },
+            data: {
+                status: 'APPROVED',
+            },
+        })
+    
+        return res.status(201).json(
+            new ApiResponse({
+                statusCode: 201,
+                data: null,
+                message: "Milestone approved",
+            })
+        );
+    } catch (error) {
+        return res.status(500).json(
+            new ApiResponse({
+                statusCode: 500,
+                data: null,
+                message: "Error approving milestone",
+            })
+        )
+    }
 })
 
 const rejectMilestone = asyncHandler(async (req: Request, res: Response) => {
-})
+    const userId = (req.user as JwtPayload).userId;
+    try {
+        const user = await prisma.user.findUnique({
+            where: {
+                id: userId,
+            },
+            include: {
+                client: true,
+            }
+        })
 
-export { getMilestones, createMilestone, updateMilestone, deleteMilestone };
+        if (!user?.client) {
+            return res.status(400).json(
+                new ApiResponse({
+                    statusCode: 400,
+                    data: null,
+                    message: "Unauthorized",
+                })
+            );
+        }
+
+        const { milestoneId } = req.params;
+        await prisma.workSubmission.update({
+            where: {
+                id: milestoneId,
+            },
+            data: {
+                status: 'REJECTED',
+            },
+        })
+    
+        return res.status(201).json(
+            new ApiResponse({
+                statusCode: 201,
+                data: null,
+                message: "Milestone rejected",
+            })
+        );
+    } catch (error) {
+        return res.status(500).json(
+            new ApiResponse({
+                statusCode: 500,
+                data: null,
+                message: "Error rejecting milestone",
+            })
+        )
+    }
+})
+export  { getMilestones, createMilestone, updateMilestone, deleteMilestone, submitMilestone, approveMilestone, rejectMilestone };
