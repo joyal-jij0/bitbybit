@@ -44,6 +44,57 @@ interface ProjectDetails {
   freelancerName: string;
 }
 
+const dummyProject = (id:string): ProjectDetails =>( {
+  id,
+  title: "E-commerce Website Redesign",
+  description:
+    "Complete redesign of the e-commerce website with modern UI, improved user experience, and optimized checkout process. The project includes responsive design, product catalog, shopping cart, and payment integration.",
+  status: "in_progress",
+  startDate: "March 1, 2025",
+  endDate: "May 15, 2025",
+  budget: "$4,000",
+  clientName: "BrandTech Inc.",
+  freelancerName: "Alex Morgan",
+  milestones: [
+    {
+      id: 1,
+      title: "Initial Design & Wireframes",
+      description:
+        "Create wireframes and design mockups for the main pages of the website including homepage, product listing, product details, cart, and checkout.",
+      dueDate: "March 15, 2025",
+      amount: "$1,000",
+      status: "approved",
+    },
+    {
+      id: 2,
+      title: "Frontend Development",
+      description:
+        "Implement the approved designs as responsive frontend components using React and Next.js. Ensure cross-browser compatibility and mobile responsiveness.",
+      dueDate: "April 10, 2025",
+      amount: "$1,500",
+      status: "in_progress",
+    },
+    {
+      id: 3,
+      title: "Backend Integration",
+      description:
+        "Connect the frontend to the backend API and integrate payment systems. Implement user authentication and product management features.",
+      dueDate: "April 30, 2025",
+      amount: "$1,000",
+      status: "pending",
+    },
+    {
+      id: 4,
+      title: "Testing & Deployment",
+      description:
+        "Conduct thorough testing, fix bugs, and deploy the website to production. Provide documentation and training for content management.",
+      dueDate: "May 15, 2025",
+      amount: "$500",
+      status: "pending",
+    },
+  ],
+});
+
 export default function ProjectDetailsPage() {
   const params = useParams();
   const [userType, setUserType] = useState<"freelancer" | "client">("client");
@@ -66,62 +117,11 @@ export default function ProjectDetailsPage() {
     setUserType((prev) => (prev === "client" ? "freelancer" : "client"));
   };
 
-  // Dummy project data - in a real app, this would be fetched based on the ID
-  const dummyProject: ProjectDetails = {
-    id: params.id as string,
-    title: "E-commerce Website Redesign",
-    description:
-      "Complete redesign of the e-commerce website with modern UI, improved user experience, and optimized checkout process. The project includes responsive design, product catalog, shopping cart, and payment integration.",
-    status: "in_progress",
-    startDate: "March 1, 2025",
-    endDate: "May 15, 2025",
-    budget: "$4,000",
-    clientName: "BrandTech Inc.",
-    freelancerName: "Alex Morgan",
-    milestones: [
-      {
-        id: 1,
-        title: "Initial Design & Wireframes",
-        description:
-          "Create wireframes and design mockups for the main pages of the website including homepage, product listing, product details, cart, and checkout.",
-        dueDate: "March 15, 2025",
-        amount: "$1,000",
-        status: "approved",
-      },
-      {
-        id: 2,
-        title: "Frontend Development",
-        description:
-          "Implement the approved designs as responsive frontend components using React and Next.js. Ensure cross-browser compatibility and mobile responsiveness.",
-        dueDate: "April 10, 2025",
-        amount: "$1,500",
-        status: "in_progress",
-      },
-      {
-        id: 3,
-        title: "Backend Integration",
-        description:
-          "Connect the frontend to the backend API and integrate payment systems. Implement user authentication and product management features.",
-        dueDate: "April 30, 2025",
-        amount: "$1,000",
-        status: "pending",
-      },
-      {
-        id: 4,
-        title: "Testing & Deployment",
-        description:
-          "Conduct thorough testing, fix bugs, and deploy the website to production. Provide documentation and training for content management.",
-        dueDate: "May 15, 2025",
-        amount: "$500",
-        status: "pending",
-      },
-    ],
-  };
 
   // Simulate an API call to fetch project data
   useEffect(() => {
     setTimeout(() => {
-      setProject(dummyProject);
+      setProject(dummyProject(params.id as string));
       setLoading(false);
     }, 800);
   }, []);
