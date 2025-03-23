@@ -30,6 +30,7 @@ export default function Dashboard() {
   }
   
   const [freelancerProfiles, setFreelancerProfiles] = useState<FreelancerProfile[]>([]);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [isFreelancersLoading, setIsFreelancersLoading] = useState<boolean>(false);
 
   // Fetch the user profile to determine user type
@@ -83,6 +84,7 @@ export default function Dashboard() {
           console.log("Freelancers data:", response.data);
           
           if (response.data?.data) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             setFreelancerProfiles(response.data.data.map((freelancer: any) => ({
               id: freelancer.userId,
               name: freelancer.user?.name || 'Unknown User',

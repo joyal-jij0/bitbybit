@@ -143,6 +143,7 @@ export default function NewProjectPage() {
 
         if (generatedData.milestones && generatedData.milestones.length > 0) {
           setMilestones(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             generatedData.milestones.map((m: any) => ({
               title: m.title || "",
               description: m.description || "",
@@ -153,6 +154,7 @@ export default function NewProjectPage() {
 
           // Recalculate total after setting milestones
           const total = generatedData.milestones.reduce(
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (sum: number, milestone: any) => {
               return sum + (parseFloat(milestone.amount) || 0);
             },
