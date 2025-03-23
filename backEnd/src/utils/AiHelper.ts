@@ -67,7 +67,7 @@ export async function generateProjectProposal(message: string): Promise<ProjectP
 
     // Configure the model with the schema
     const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash",
+      model: "gemini-2.0-flash",
       generationConfig: {
         responseMimeType: "application/json",
         responseSchema: schema as any,
@@ -78,7 +78,8 @@ export async function generateProjectProposal(message: string): Promise<ProjectP
     const prompt = `Based on the following message, generate a detailed project proposal:
     
     User message: ${message}
-    
+    Today's Date: ${new Date().toISOString()}
+
     Create a comprehensive project proposal with a clear title, detailed description, and at least 3-5 milestones.
     Each milestone should have a realistic title, due date, description, and budget amount.`;
 
